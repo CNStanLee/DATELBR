@@ -1,0 +1,25 @@
+{
+  "Thresholding_rtl_0": {},
+  "MVAU_hls_0": {
+    "op_mac_3bx3b": 2048,
+    "param_weight_3b": 2048,
+    "param_threshold_8b": 64
+  },
+  "MVAU_hls_1": {
+    "op_mac_3bx3b": 512,
+    "param_weight_3b": 512,
+    "param_threshold_9b": 8
+  },
+  "MVAU_rtl_0": {
+    "op_mac_2bx3b": 32,
+    "param_weight_2b": 32
+  },
+  "total": {
+    "op_mac_3bx3b": 2560.0,
+    "param_weight_3b": 2560.0,
+    "param_threshold_8b": 64.0,
+    "param_threshold_9b": 8.0,
+    "op_mac_2bx3b": 32.0,
+    "param_weight_2b": 32.0
+  }
+}

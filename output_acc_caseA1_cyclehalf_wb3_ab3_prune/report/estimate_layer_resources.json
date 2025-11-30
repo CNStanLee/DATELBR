@@ -1,0 +1,40 @@
+{
+  "Thresholding_rtl_0": {
+    "BRAM_18K": 0,
+    "BRAM_efficiency": 1,
+    "LUT": 3072,
+    "URAM": 0,
+    "URAM_efficiency": 1,
+    "DSP": 0
+  },
+  "MVAU_hls_0": {
+    "BRAM_18K": 0,
+    "BRAM_efficiency": 1,
+    "LUT": 47135,
+    "URAM": 0,
+    "URAM_efficiency": 1,
+    "DSP": 0
+  },
+  "MVAU_hls_1": {
+    "BRAM_18K": 0,
+    "BRAM_efficiency": 1,
+    "LUT": 12000,
+    "URAM": 0,
+    "URAM_efficiency": 1,
+    "DSP": 0
+  },
+  "MVAU_rtl_0": {
+    "BRAM_18K": 2,
+    "BRAM_efficiency": 0.001736111111111111,
+    "LUT": 0,
+    "URAM": 0,
+    "URAM_efficiency": 1,
+    "DSP": 8
+  },
+  "total": {
+    "BRAM_18K": 2.0,
+    "LUT": 62207.0,
+    "URAM": 0.0,
+    "DSP": 8.0
+  }
+}

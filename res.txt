@@ -1,0 +1,176 @@
+Build log is at output_acc_caseA1_cyclehalf_wb3_ab3_prune/build_dataflow.log
+Running step: step_qonnx_to_finn [1/19]
+Running step: step_tidy_up [2/19]
+Running step: step_streamline [3/19]
+Running step: step_convert_to_hw [4/19]
+Running step: step_create_dataflow_partition [5/19]
+Running step: step_specialize_layers [6/19]
+Running step: step_target_fps_parallelization [7/19]
+Running step: step_apply_folding_config [8/19]
+Running step: step_minimize_bit_width [9/19]
+Running step: step_generate_estimate_reports [10/19]
+Running step: step_hw_codegen [11/19]
+Running step: step_hw_ipgen [12/19]
+Running step: step_set_fifo_depths [13/19]
+Running step: step_create_stitched_ip [14/19]
+Running step: step_measure_rtlsim_performance [15/19]
+Running step: step_out_of_context_synthesis [16/19]
+Running step: step_synthesize_bitfile [17/19]
+Running step: step_make_driver [18/19]
+Running step: step_deployment_package [19/19]
+Completed successfully
+finished gernerating accs.
+changhong@finn_dev_changhong:/home/changhong/prj/finn_cli_fork/scripts/DATELBR$ python run_all_quant.py 
+Using device: cuda
+BLS Brevitas-pinv (no concat, no residual) on caseA1, cycle=half
+Train size: 350, Val size: 75, Test size: 75
+Input dim: 32, Label scale: 100.0
+w_bit = 3, a_bit = 3, reg_lambda = 0.0
+/usr/local/lib/python3.10/dist-packages/torch/_tensor.py:1644: UserWarning: Named tensors and all their associated APIs are an experimental feature and subject to change. Please do not use them for anything important until they are released as stable. (Triggered internally at /pytorch/c10/core/TensorImpl.h:1935.)
+  return super().rename(names)
+/home/changhong/prj/finn_cli_fork/deps/brevitas/src/brevitas/nn/quant_linear.py:69: UserWarning: Defining your `__torch_function__` as a plain method is deprecated and will be an error in future, please define it as a classmethod. (Triggered internally at /pytorch/torch/csrc/utils/python_arg_parser.cpp:338.)
+  output_tensor = linear(x, quant_weight, quant_bias)
+Quantized output layer (on H only) solved by least squares.
+Dense model - Test MAE per harmonic (original scale):
+  [A1, A3, A5, A7] = [0.50984985 0.23759243 1.0116669  1.1242875 ]
+Dense model - Test relative error per harmonic (%):
+  Mean RE [A1, A3, A5, A7] = [0.5099711  0.79461074 5.0627465  7.497328  ]
+  Max  RE [A1, A3, A5, A7] = [0.98456347 1.7247351  6.0814323  8.412183  ]
+Saved dense model to: model/bls_pinv_brevitas_simple_caseA1_cyclehalf_wb3_ab3_lam0.0.pth
+Exported cleaned dense QONNX model to: model/bls_pinv_brevitas_simple_caseA1_cyclehalf_wb3_ab3.onnx
+
+==== Dense model sparsity ====
+Parameter Path                                                                      | Layer Type                       | Param Count | Non-zero | Sparsity (%)
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+input_quant.act_quant.fused_activation_quant_proxy.tensor_quant.scaling_impl.value  | ParameterFromRuntimeStatsScaling |     1 |     1 |       0.00%
+output_quant.act_quant.fused_activation_quant_proxy.tensor_quant.scaling_impl.value | ParameterFromRuntimeStatsScaling |     1 |     1 |       0.00%
+fc_feature.weight                                                                   | QuantLinear                      | 2,048 | 2,048 |       0.00%
+fc_feature.bias                                                                     | QuantLinear                      |    64 |    64 |       0.00%
+act_feature.act_quant.fused_activation_quant_proxy.tensor_quant.scaling_impl.value  | ParameterFromRuntimeStatsScaling |     1 |     1 |       0.00%
+fc_enh.weight                                                                       | QuantLinear                      |   512 |   512 |       0.00%
+fc_enh.bias                                                                         | QuantLinear                      |     8 |     8 |       0.00%
+act_enh.act_quant.fused_activation_quant_proxy.tensor_quant.scaling_impl.value      | ParameterFromRuntimeStatsScaling |     1 |     1 |       0.00%
+fc_out.weight                                                                       | QuantLinear                      |    32 |     8 |      75.00%
+fc_out.bias                                                                         | QuantLinear                      |     4 |     4 |       0.00%
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+TOTAL                                                                               | -                                | 2,672 | 2,648 |       0.90%
+
+Compression Ratio (pruning only): 1.01x
+
+==== Pruning model ====
+Target sparsity: 0.90, Actual sparsity: 0.88
+Total parameters: 2560, Pruned: 2240
+
+==== Pruned model sparsity (before finetune) ====
+Parameter Path                                                                      | Layer Type                       | Param Count | Non-zero | Sparsity (%)
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+input_quant.act_quant.fused_activation_quant_proxy.tensor_quant.scaling_impl.value  | ParameterFromRuntimeStatsScaling |     1 |   1 |       0.00%
+output_quant.act_quant.fused_activation_quant_proxy.tensor_quant.scaling_impl.value | ParameterFromRuntimeStatsScaling |     1 |   1 |       0.00%
+fc_feature.weight                                                                   | QuantLinear                      | 2,048 | 256 |      87.50%
+fc_feature.bias                                                                     | QuantLinear                      |    64 |  64 |       0.00%
+act_feature.act_quant.fused_activation_quant_proxy.tensor_quant.scaling_impl.value  | ParameterFromRuntimeStatsScaling |     1 |   1 |       0.00%
+fc_enh.weight                                                                       | QuantLinear                      |   512 |  64 |      87.50%
+fc_enh.bias                                                                         | QuantLinear                      |     8 |   8 |       0.00%
+act_enh.act_quant.fused_activation_quant_proxy.tensor_quant.scaling_impl.value      | ParameterFromRuntimeStatsScaling |     1 |   1 |       0.00%
+fc_out.weight                                                                       | QuantLinear                      |    32 |   8 |      75.00%
+fc_out.bias                                                                         | QuantLinear                      |     4 |   4 |       0.00%
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+TOTAL                                                                               | -                                | 2,672 | 408 |      84.73%
+
+Compression Ratio (pruning only): 6.55x
+Pruned model (before finetune) - Test relative error per harmonic (%):
+  Mean RE [A1, A3, A5, A7] = [7.5092254 7.595215  7.510171  7.497328 ]
+  Max  RE [A1, A3, A5, A7] = [8.434592 8.440479 8.437256 8.412183]
+freeze_zero_weights: 已为所有 weight 注册梯度 mask，剪枝结构将保持不变。
+[Finetune][Epoch 1/50] TrainLoss=0.001596 TrainMAE=[7.2455344 1.9631351 1.2098753 0.8327173] ValMAE=[7.102505   1.9802533  1.1811385  0.83295125]
+[Finetune][Epoch 2/50] TrainLoss=0.001424 TrainMAE=[6.946393   1.6669027  0.91646606 0.5428957 ] ValMAE=[6.803364   1.6840209  0.8877292  0.54312956]
+[Finetune][Epoch 3/50] TrainLoss=0.001271 TrainMAE=[6.6486864  1.377415   0.6357234  0.27404156] ValMAE=[6.505657   1.3945332  0.6069866  0.27427548]
+[Finetune][Epoch 4/50] TrainLoss=0.001137 TrainMAE=[6.35339    1.0988371  0.37651664 0.07930302] ValMAE=[6.2103624  1.1159555  0.34777978 0.0742981 ]
+[Finetune][Epoch 5/50] TrainLoss=0.001020 TrainMAE=[6.0609407  0.83564776 0.15593837 0.1344364 ] ValMAE=[5.9179125  0.85276604 0.13205127 0.13333544]
+[Finetune][Epoch 6/50] TrainLoss=0.000918 TrainMAE=[5.7721605  0.5929053  0.10639064 0.24116479] ValMAE=[5.6291313  0.61002344 0.10399168 0.24093087]
+[Finetune][Epoch 7/50] TrainLoss=0.000828 TrainMAE=[5.487775   0.3754751  0.17320828 0.27940997] ValMAE=[5.3447456  0.39259335 0.19985744 0.2791761 ]
+[Finetune][Epoch 8/50] TrainLoss=0.000746 TrainMAE=[5.2082872  0.21228644 0.2513463  0.2599083 ] ValMAE=[5.0652585  0.22173575 0.28008318 0.25967437]
+[Finetune][Epoch 9/50] TrainLoss=0.000671 TrainMAE=[4.9343915  0.15446535 0.28136796 0.19981253] ValMAE=[4.791363   0.15627871 0.31010485 0.19957861]
+[Finetune][Epoch 10/50] TrainLoss=0.000602 TrainMAE=[4.666463   0.15905912 0.2691552  0.12236666] ValMAE=[4.523434   0.16000438 0.2978921  0.12084848]
+[Finetune][Epoch 11/50] TrainLoss=0.000539 TrainMAE=[4.405064   0.19501716 0.22583932 0.07780664] ValMAE=[4.2620354  0.1858757  0.2545762  0.07816228]
+[Finetune][Epoch 12/50] TrainLoss=0.000481 TrainMAE=[4.1508837  0.22884133 0.16791289 0.07688927] ValMAE=[4.0078545  0.2161937  0.1934872  0.07320755]
+[Finetune][Epoch 13/50] TrainLoss=0.000428 TrainMAE=[3.904172   0.24604003 0.12513728 0.09345558] ValMAE=[3.761143   0.23101121 0.1372479  0.08903538]
+[Finetune][Epoch 14/50] TrainLoss=0.000379 TrainMAE=[3.6652575  0.24347608 0.10524298 0.10489502] ValMAE=[3.5222282  0.22880207 0.10144356 0.10134684]
+[Finetune][Epoch 15/50] TrainLoss=0.000335 TrainMAE=[3.4343917  0.22566813 0.10399576 0.10053442] ValMAE=[3.2913635  0.21335198 0.08961157 0.09660265]
+[Finetune][Epoch 16/50] TrainLoss=0.000295 TrainMAE=[3.2116287  0.20169826 0.11056674 0.08693843] ValMAE=[3.0686     0.19167405 0.09522393 0.08214713]
+[Finetune][Epoch 17/50] TrainLoss=0.000259 TrainMAE=[2.9972126  0.17892234 0.11635041 0.07678179] ValMAE=[2.8541834  0.17395572 0.10007039 0.07317366]
+[Finetune][Epoch 18/50] TrainLoss=0.000226 TrainMAE=[2.791852   0.16154177 0.11676021 0.07337064] ValMAE=[2.6488228  0.1616903  0.10040029 0.07378769]
+[Finetune][Epoch 19/50] TrainLoss=0.000197 TrainMAE=[2.5950823  0.15254562 0.11249883 0.0754494 ] ValMAE=[2.4520533  0.15448023 0.0969942  0.07633936]
+[Finetune][Epoch 20/50] TrainLoss=0.000172 TrainMAE=[2.4071627  0.15044706 0.10742813 0.07798603] ValMAE=[2.2641337  0.15329827 0.09234777 0.07831087]
+[Finetune][Epoch 21/50] TrainLoss=0.000149 TrainMAE=[2.2279177  0.15179816 0.10391923 0.0779319 ] ValMAE=[2.0848885  0.15429512 0.08964308 0.07826681]
+[Finetune][Epoch 22/50] TrainLoss=0.000129 TrainMAE=[2.057416   0.1543029  0.10276041 0.0761175 ] ValMAE=[1.9143869  0.15616107 0.09211713 0.07688877]
+[Finetune][Epoch 23/50] TrainLoss=0.000111 TrainMAE=[1.8961762  0.15623607 0.10359486 0.07413836] ValMAE=[1.7531474  0.15785742 0.09654252 0.07507072]
+[Finetune][Epoch 24/50] TrainLoss=0.000096 TrainMAE=[1.743207   0.15699315 0.1045693  0.07337327] ValMAE=[1.600178   0.1586982  0.09964523 0.07386697]
+[Finetune][Epoch 25/50] TrainLoss=0.000083 TrainMAE=[1.5988511  0.15655921 0.10482825 0.07358472] ValMAE=[1.4558222  0.15819193 0.10041635 0.07312953]
+[Finetune][Epoch 26/50] TrainLoss=0.000071 TrainMAE=[1.4631853  0.1553501  0.10437398 0.07399642] ValMAE=[1.3201563  0.15693265 0.09903001 0.07301082]
+[Finetune][Epoch 27/50] TrainLoss=0.000061 TrainMAE=[1.3360796  0.1538805  0.10363636 0.07396092] ValMAE=[1.1930506  0.15583377 0.09668048 0.07301598]
+[Finetune][Epoch 28/50] TrainLoss=0.000053 TrainMAE=[1.2165346  0.15243879 0.10294483 0.07361733] ValMAE=[1.0735055  0.15479398 0.09419419 0.07310878]
+[Finetune][Epoch 29/50] TrainLoss=0.000045 TrainMAE=[1.1051836  0.15149507 0.10275064 0.07338662] ValMAE=[0.96215457 0.1540726  0.09230977 0.07353128]
+[Finetune][Epoch 30/50] TrainLoss=0.000039 TrainMAE=[1.0008669  0.15092322 0.10285269 0.07337722] ValMAE=[0.85783786 0.15357442 0.09128133 0.0739022 ]
+[Finetune][Epoch 31/50] TrainLoss=0.000034 TrainMAE=[0.9087671  0.15061712 0.10292251 0.07346044] ValMAE=[0.7691391 0.1534463 0.0909116 0.07421  ]
+[Finetune][Epoch 32/50] TrainLoss=0.000030 TrainMAE=[0.8339908  0.15048122 0.10292526 0.07350042] ValMAE=[0.69785964 0.1533893  0.09089985 0.07429235]
+[Finetune][Epoch 33/50] TrainLoss=0.000026 TrainMAE=[0.77144825 0.15045127 0.1028801  0.07344154] ValMAE=[0.64232594 0.15336601 0.09110481 0.07416399]
+[Finetune][Epoch 34/50] TrainLoss=0.000023 TrainMAE=[0.7214083  0.15044446 0.10281721 0.07339559] ValMAE=[0.6026709  0.1533582  0.09157735 0.07398956]
+[Finetune][Epoch 35/50] TrainLoss=0.000020 TrainMAE=[0.6810337  0.15046942 0.10275827 0.07337338] ValMAE=[0.57615167 0.15338013 0.09215452 0.07386824]
+[Finetune][Epoch 36/50] TrainLoss=0.000018 TrainMAE=[0.6477966  0.15050647 0.10275622 0.07337064] ValMAE=[0.5585936  0.15340416 0.09270204 0.07373594]
+[Finetune][Epoch 37/50] TrainLoss=0.000017 TrainMAE=[0.6218025  0.1505992  0.10280284 0.07337064] ValMAE=[0.54401255 0.15344073 0.09330337 0.07366855]
+[Finetune][Epoch 38/50] TrainLoss=0.000015 TrainMAE=[0.60059637 0.15073717 0.10285173 0.07337122] ValMAE=[0.5335238  0.15347801 0.09369165 0.07363492]
+[Finetune][Epoch 39/50] TrainLoss=0.000014 TrainMAE=[0.5841468  0.15086196 0.10281238 0.07337064] ValMAE=[0.5273928  0.15353155 0.09339684 0.07364483]
+[Finetune][Epoch 40/50] TrainLoss=0.000013 TrainMAE=[0.57126534 0.1509326  0.10276616 0.07337064] ValMAE=[0.52216333 0.153581   0.09289702 0.07372964]
+[Finetune][Epoch 41/50] TrainLoss=0.000013 TrainMAE=[0.56041974 0.1510046  0.10274791 0.07337064] ValMAE=[0.5174765  0.15362816 0.09240514 0.07381655]
+[Finetune][Epoch 42/50] TrainLoss=0.000012 TrainMAE=[0.5513426  0.15100363 0.1027598  0.07337064] ValMAE=[0.5152677  0.15362754 0.09212781 0.07380576]
+[Finetune][Epoch 43/50] TrainLoss=0.000012 TrainMAE=[0.5446538  0.15097031 0.10277548 0.07337171] ValMAE=[0.51399964 0.15360631 0.09194243 0.07384867]
+[Finetune][Epoch 44/50] TrainLoss=0.000011 TrainMAE=[0.5396443  0.15093707 0.10276213 0.07337275] ValMAE=[0.513256   0.15358412 0.092087   0.07386087]
+[Finetune][Epoch 45/50] TrainLoss=0.000011 TrainMAE=[0.53586024 0.15089683 0.10276357 0.07337487] ValMAE=[0.51292175 0.15355596 0.09206182 0.07388554]
+[Finetune][Epoch 46/50] TrainLoss=0.000011 TrainMAE=[0.5330211  0.15084572 0.10275318 0.07337063] ValMAE=[0.51283395 0.15352018 0.09224379 0.07379615]
+[Finetune][Epoch 47/50] TrainLoss=0.000011 TrainMAE=[0.5310692  0.15083286 0.10274737 0.07337064] ValMAE=[0.5130936  0.1535112  0.09246351 0.07373689]
+[Finetune][Epoch 48/50] TrainLoss=0.000011 TrainMAE=[0.5296779  0.15078774 0.10274865 0.07337064] ValMAE=[0.513773   0.15348981 0.09253752 0.07372519]
+[Finetune][Epoch 49/50] TrainLoss=0.000011 TrainMAE=[0.528575   0.15079984 0.10274947 0.07337064] ValMAE=[0.5147628  0.15349264 0.09256613 0.07378184]
+[Finetune][Epoch 50/50] TrainLoss=0.000010 TrainMAE=[0.52785236 0.1508078  0.10274991 0.0733759 ] ValMAE=[0.51597726 0.15349449 0.09257665 0.0738945 ]
+微调结束，恢复验证集最佳模型，最佳验证 MAE(平均) = 0.208099
+
+==== Pruned model sparsity (after finetune, 结构不变) ====
+Parameter Path                                                                      | Layer Type                       | Param Count | Non-zero | Sparsity (%)
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+input_quant.act_quant.fused_activation_quant_proxy.tensor_quant.scaling_impl.value  | ParameterFromRuntimeStatsScaling |     1 |   1 |       0.00%
+output_quant.act_quant.fused_activation_quant_proxy.tensor_quant.scaling_impl.value | ParameterFromRuntimeStatsScaling |     1 |   1 |       0.00%
+fc_feature.weight                                                                   | QuantLinear                      | 2,048 | 256 |      87.50%
+fc_feature.bias                                                                     | QuantLinear                      |    64 |  64 |       0.00%
+act_feature.act_quant.fused_activation_quant_proxy.tensor_quant.scaling_impl.value  | ParameterFromRuntimeStatsScaling |     1 |   1 |       0.00%
+fc_enh.weight                                                                       | QuantLinear                      |   512 |  64 |      87.50%
+fc_enh.bias                                                                         | QuantLinear                      |     8 |   8 |       0.00%
+act_enh.act_quant.fused_activation_quant_proxy.tensor_quant.scaling_impl.value      | ParameterFromRuntimeStatsScaling |     1 |   1 |       0.00%
+fc_out.weight                                                                       | QuantLinear                      |    32 |   8 |      75.00%
+fc_out.bias                                                                         | QuantLinear                      |     4 |   4 |       0.00%
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+TOTAL                                                                               | -                                | 2,672 | 408 |      84.73%
+
+Compression Ratio (pruning only): 6.55x
+Pruned + Finetuned model - Test relative error per harmonic (%):
+  Mean RE [A1, A3, A5, A7] = [0.50689197 0.4836483  0.5125471  0.4960766 ]
+  Max  RE [A1, A3, A5, A7] = [1.0944959  0.9709155  1.0027019  0.98490685]
+Pruned + Finetuned model - Test MAE per harmonic (original scale):
+  [A1, A3, A5, A7] = [0.5074346  0.14522761 0.10246328 0.07435291]
+Parameter Path                                                                      | Layer Type                       | Param Count | Non-zero | Sparsity (%)
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+input_quant.act_quant.fused_activation_quant_proxy.tensor_quant.scaling_impl.value  | ParameterFromRuntimeStatsScaling |     1 |   1 |       0.00%
+output_quant.act_quant.fused_activation_quant_proxy.tensor_quant.scaling_impl.value | ParameterFromRuntimeStatsScaling |     1 |   1 |       0.00%
+fc_feature.weight                                                                   | QuantLinear                      | 2,048 | 256 |      87.50%
+fc_feature.bias                                                                     | QuantLinear                      |    64 |  64 |       0.00%
+act_feature.act_quant.fused_activation_quant_proxy.tensor_quant.scaling_impl.value  | ParameterFromRuntimeStatsScaling |     1 |   1 |       0.00%
+fc_enh.weight                                                                       | QuantLinear                      |   512 |  64 |      87.50%
+fc_enh.bias                                                                         | QuantLinear                      |     8 |   8 |       0.00%
+act_enh.act_quant.fused_activation_quant_proxy.tensor_quant.scaling_impl.value      | ParameterFromRuntimeStatsScaling |     1 |   1 |       0.00%
+fc_out.weight                                                                       | QuantLinear                      |    32 |   8 |      75.00%
+fc_out.bias                                                                         | QuantLinear                      |     4 |   4 |       0.00%
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+TOTAL                                                                               | -                                | 2,672 | 408 |      84.73%
+
+Compression Ratio (pruning only): 6.55x
+Saved pruned + finetuned model to: model/bls_pinv_brevitas_simple_caseA1_cyclehalf_wb3_ab3_lam0.0_prune0.9_ft50.pth
+Exported cleaned sparse QONNX model to: model/bls_pinv_brevitas_simple_caseA1_cyclehalf_wb3_ab3_prune0.9.onnx
