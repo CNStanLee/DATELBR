@@ -228,6 +228,135 @@ def train_one_reg_analytic(
     }
 
 
+def _collect_h_ext_y(model: nn.Module, loader, device: torch.device):
+    model.eval()
+    h_list = []
+    y_list = []
+    with torch.no_grad():
+        for x, y in loader:
+            x = x.to(device)
+            _, h = model.forward_features(x)
+            h_list.append(h.cpu())
+            y_list.append(y.cpu())
+    h_all = torch.cat(h_list, dim=0).double()  # [N, m]
+    y_all = torch.cat(y_list, dim=0).double()  # [N, out_dim]
+    n = h_all.shape[0]
+    ones = torch.ones(n, 1, dtype=h_all.dtype)
+    h_ext = torch.cat([h_all, ones], dim=1)  # [N, m+1]
+    return h_ext, y_all
+
+
+def _solve_ridge_anchor(h_ext: torch.Tensor, y_all: torch.Tensor, reg_lambda: float, w_ref_ext: torch.Tensor):
+    if reg_lambda > 0.0:
+        ht = h_ext.T
+        g = ht @ h_ext
+        a = g + reg_lambda * torch.eye(g.shape[0], dtype=g.dtype)
+        b = ht @ y_all + reg_lambda * w_ref_ext
+        w_ext = torch.linalg.solve(a, b)
+    else:
+        sol = torch.linalg.lstsq(h_ext, y_all)
+        w_ext = sol.solution
+    return w_ext
+
+
+def train_one_reg_analytic_progressive(
+    model: nn.Module,
+    train_loader,
+    val_loader,
+    device: torch.device,
+    label_scale: float,
+    epochs: int,
+    reg_lambda: float,
+    anchor_w: torch.Tensor,
+    anchor_b: torch.Tensor,
+    init_train_mae: float,
+    init_val_mae: float,
+    init_train_mae_vec: np.ndarray,
+    init_val_mae_vec: np.ndarray,
+    min_frac: float = 0.1,
+    anchor_mode: str = "prev",
+    shuffle_seed: int = 42,
+):
+    """Progressive analytic ridge:
+    each epoch solves closed-form ridge on an increasing subset of target samples.
+    This emulates BLS incremental-sample update behavior and gives an epoch-wise process curve.
+    """
+    train_hist: List[float] = [float(init_train_mae)]
+    val_hist: List[float] = [float(init_val_mae)]
+    train_hist_vec: List[List[float]] = [np.asarray(init_train_mae_vec, dtype=np.float64).tolist()]
+    val_hist_vec: List[List[float]] = [np.asarray(init_val_mae_vec, dtype=np.float64).tolist()]
+
+    h_ext_all, y_all = _collect_h_ext_y(model=model, loader=train_loader, device=device)
+    n_total = int(h_ext_all.shape[0])
+
+    w0_ext = torch.cat(
+        [
+            anchor_w.detach().cpu().T.double(),
+            anchor_b.detach().cpu().reshape(1, -1).double(),
+        ],
+        dim=0,
+    )
+    w_prev = w0_ext.clone()
+
+    rng = np.random.default_rng(shuffle_seed)
+    perm = np.arange(n_total, dtype=np.int64)
+    rng.shuffle(perm)
+
+    best_val = float(init_val_mae)
+    best_epoch = 0
+    best_state = {k: v.detach().cpu().clone() for k, v in model.state_dict().items()}
+
+    safe_min_frac = float(np.clip(min_frac, 1.0 / max(n_total, 1), 1.0))
+    denom = max(epochs - 1, 1)
+    for ep in range(1, epochs + 1):
+        frac = safe_min_frac + (1.0 - safe_min_frac) * ((ep - 1) / denom)
+        n_use = max(1, int(round(n_total * frac)))
+        idx = perm[:n_use]
+        h_ext = h_ext_all[idx]
+        y_ep = y_all[idx]
+
+        if anchor_mode == "base":
+            w_ref = w0_ext
+        elif anchor_mode == "prev":
+            w_ref = w_prev
+        else:
+            raise ValueError(f"Unsupported anchor_mode={anchor_mode}")
+
+        w_ext = _solve_ridge_anchor(h_ext=h_ext, y_all=y_ep, reg_lambda=reg_lambda, w_ref_ext=w_ref)
+        w_prev = w_ext
+
+        w_ext = w_ext.float()
+        w = w_ext[:-1, :]
+        b = w_ext[-1, :]
+        with torch.no_grad():
+            model.fc_out.weight.data.copy_(w.T.to(model.fc_out.weight.device))
+            model.fc_out.bias.data.copy_(b.to(model.fc_out.bias.device))
+
+        train_mae_vec = np.asarray(test_mae_original_scale(model, train_loader, device, label_scale), dtype=np.float64)
+        val_mae_vec = np.asarray(test_mae_original_scale(model, val_loader, device, label_scale), dtype=np.float64)
+        train_mae = mean_mae_scalar(train_mae_vec)
+        val_mae = mean_mae_scalar(val_mae_vec)
+        train_hist.append(float(train_mae))
+        val_hist.append(float(val_mae))
+        train_hist_vec.append(train_mae_vec.tolist())
+        val_hist_vec.append(val_mae_vec.tolist())
+
+        if val_mae < best_val:
+            best_val = float(val_mae)
+            best_epoch = int(ep)
+            best_state = {k: v.detach().cpu().clone() for k, v in model.state_dict().items()}
+
+    model.load_state_dict(best_state, strict=False)
+    return {
+        "train_hist": train_hist,
+        "val_hist": val_hist,
+        "train_hist_vec": train_hist_vec,
+        "val_hist_vec": val_hist_vec,
+        "best_val": best_val,
+        "best_epoch": best_epoch,
+    }
+
+
 def first_epoch_leq(arr: np.ndarray, threshold: float):
     idx = np.where(arr <= threshold)[0]
     if idx.size == 0:
@@ -345,6 +474,7 @@ def run_one_scenario(args, scenario: str, device: torch.device) -> Dict:
     init_state = {k: v.detach().cpu().clone() for k, v in model_init.state_dict().items()}
     anchor_w = model_init.fc_out.weight.detach().clone().to(device)
     anchor_b = model_init.fc_out.bias.detach().clone().to(device)
+    bp_lr = float(args.bp_lr if args.bp_lr is not None else args.lr)
 
     # Reg method
     model_reg = make_model(args, input_dim=split.x_train.shape[1], device=device)
@@ -365,6 +495,25 @@ def run_one_scenario(args, scenario: str, device: torch.device) -> Dict:
             init_val_mae=init_val,
             init_train_mae_vec=init_train_vec,
             init_val_mae_vec=init_val_vec,
+        )
+    elif args.reg_method == "analytic_progressive":
+        reg_res = train_one_reg_analytic_progressive(
+            model=model_reg,
+            train_loader=train_loader,
+            val_loader=val_loader,
+            device=device,
+            label_scale=args.label_scale,
+            epochs=args.epochs,
+            reg_lambda=args.reg_lambda,
+            anchor_w=anchor_w,
+            anchor_b=anchor_b,
+            init_train_mae=init_train,
+            init_val_mae=init_val,
+            init_train_mae_vec=init_train_vec,
+            init_val_mae_vec=init_val_vec,
+            min_frac=args.reg_progressive_min_frac,
+            anchor_mode=args.reg_progressive_anchor,
+            shuffle_seed=args.reg_progressive_shuffle_seed,
         )
     else:
         reg_res = train_one_bp(
@@ -394,7 +543,7 @@ def run_one_scenario(args, scenario: str, device: torch.device) -> Dict:
         val_loader=val_loader,
         device=device,
         label_scale=args.label_scale,
-        lr=args.lr,
+        lr=bp_lr,
         epochs=args.epochs,
         reg_lambda=0.0,
         anchor_w=anchor_w,
@@ -440,6 +589,7 @@ def run_one_scenario(args, scenario: str, device: torch.device) -> Dict:
     row["curve_yscale"] = yscale_used
     row["reg_method"] = str(args.reg_method)
     row["used_pinv_warm_start"] = bool(not args.disable_pinv_warm_start)
+    row["bp_lr_used"] = float(bp_lr)
     row["reg_epoch1_val_mae"] = float(reg_val[1]) if reg_val.size > 1 else float(reg_val[0])
     row["bp_epoch1_val_mae"] = float(bp_val[1]) if bp_val.size > 1 else float(bp_val[0])
     for i, name in enumerate(HARMONIC_NAMES):
@@ -519,8 +669,22 @@ def main():
     parser.add_argument("--batch_size", type=int, default=512)
     parser.add_argument("--epochs", type=int, default=120)
     parser.add_argument("--lr", type=float, default=1e-3)
+    parser.add_argument(
+        "--bp_lr",
+        type=float,
+        default=5e-4,
+        help="Learning rate for BP-only baseline. Defaults lower than --lr to reduce overshoot.",
+    )
     parser.add_argument("--reg_lambda", type=float, default=1e-2)
-    parser.add_argument("--reg_method", type=str, default="analytic", choices=["analytic", "bp_anchor"])
+    parser.add_argument(
+        "--reg_method",
+        type=str,
+        default="analytic",
+        choices=["analytic", "analytic_progressive", "bp_anchor"],
+    )
+    parser.add_argument("--reg_progressive_min_frac", type=float, default=0.1)
+    parser.add_argument("--reg_progressive_anchor", type=str, default="prev", choices=["prev", "base"])
+    parser.add_argument("--reg_progressive_shuffle_seed", type=int, default=42)
     parser.add_argument("--pinv_reg_lambda", type=float, default=0.0)
     parser.add_argument("--disable_pinv_warm_start", action="store_true")
     parser.add_argument("--yscale", type=str, default="auto", choices=["auto", "linear", "log"])
