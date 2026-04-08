@@ -1,0 +1,23 @@
+{
+  "scenario": "g2b",
+  "npz_path": "dataset/real_g2b.npz",
+  "num_input_files": 37,
+  "num_kept_files": 37,
+  "num_dropped_files": 0,
+  "dropped_reason_count": {},
+  "num_samples": 370,
+  "samples_per_kept_file": 10,
+  "num_groups": 37,
+  "group_channel_source_count": {
+    "B": 37,
+    "C_converted": 0
+  },
+  "calibration": {
+    "k": 0.999231279191774,
+    "b": -0.24598757316976586,
+    "r2": 0.9990748624223853,
+    "points": 2020000,
+    "files": 101
+  },
+  "dropped_files": []
+}

@@ -1,0 +1,106 @@
+{
+  "harmonic_bar": {
+    "harmonics": [
+      "1",
+      "3",
+      "5",
+      "7"
+    ],
+    "scenarios": [
+      "caseA1",
+      "v2g",
+      "g2v",
+      "g2b",
+      "b2g"
+    ],
+    "scenario_colors": [
+      [
+        0.1215686275,
+        0.4666666667,
+        0.7058823529
+      ],
+      [
+        1.0,
+        0.4980392157,
+        0.0549019608
+      ],
+      [
+        0.1725490196,
+        0.6274509804,
+        0.1725490196
+      ],
+      [
+        0.8392156863,
+        0.1529411765,
+        0.1568627451
+      ],
+      [
+        0.5803921569,
+        0.4039215686,
+        0.7411764706
+      ]
+    ],
+    "source_csv": "data/harmonic_amp_stats.csv",
+    "preferred_yscale": "log"
+  },
+  "val_compare": {
+    "harmonics": [
+      "A1",
+      "A3",
+      "A5",
+      "A7"
+    ],
+    "channel_colors": [
+      [
+        0.1215686275,
+        0.4666666667,
+        0.7058823529
+      ],
+      [
+        1.0,
+        0.4980392157,
+        0.0549019608
+      ],
+      [
+        0.1725490196,
+        0.6274509804,
+        0.1725490196
+      ],
+      [
+        0.8392156863,
+        0.1529411765,
+        0.1568627451
+      ]
+    ],
+    "reg_linestyle": "-",
+    "bp_linestyle": "--",
+    "scenarios": [
+      {
+        "name": "v2g",
+        "csv": "data/val_curve_v2g.csv",
+        "yscale": "log"
+      },
+      {
+        "name": "g2v",
+        "csv": "data/val_curve_g2v.csv",
+        "yscale": "log"
+      },
+      {
+        "name": "g2b",
+        "csv": "data/val_curve_g2b.csv",
+        "yscale": "log"
+      },
+      {
+        "name": "b2g",
+        "csv": "data/val_curve_b2g.csv",
+        "yscale": "log"
+      }
+    ],
+    "scenario_order_from_compare_summary": [
+      "v2g",
+      "g2v",
+      "g2b",
+      "b2g"
+    ]
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "scenario": "v2g",
+  "npz_path": "dataset/real_v2g.npz",
+  "num_input_files": 64,
+  "num_kept_files": 64,
+  "num_dropped_files": 0,
+  "dropped_reason_count": {},
+  "num_samples": 640,
+  "samples_per_kept_file": 10,
+  "num_groups": 64,
+  "group_channel_source_count": {
+    "B": 64,
+    "C_converted": 0
+  },
+  "calibration": {
+    "k": 0.999231279191774,
+    "b": -0.24598757316976586,
+    "r2": 0.9990748624223853,
+    "points": 2020000,
+    "files": 101
+  },
+  "dropped_files": []
+}

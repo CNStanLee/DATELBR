@@ -1,0 +1,29 @@
+{
+  "source_dir": "/home/changhong/prj/finn_cli_fork/scripts/DATELBR/output_compare_sameinit_pinv_analytic_vs_bp",
+  "bundle_dir": "/home/changhong/prj/finn_cli_fork/scripts/DATELBR/output_compare_sameinit_pinv_analytic_vs_bp/matlab_bundle",
+  "generated_files": {
+    "metadata": [
+      "metadata/plot_metadata.json",
+      "metadata/export_manifest.json"
+    ],
+    "data": [
+      "data/harmonic_amp_stats.csv",
+      "data/val_curve_v2g.csv",
+      "data/val_curve_g2v.csv",
+      "data/val_curve_g2b.csv",
+      "data/val_curve_b2g.csv"
+    ],
+    "matlab": [
+      "matlab/run_all_plots.m",
+      "matlab/plot_harmonic_amp_5scenarios_log.m",
+      "matlab/plot_val_compare_reg_vs_bp_all.m"
+    ],
+    "reference_figures": [
+      "reference_figures/harmonic_amp_5scenarios_log.png",
+      "reference_figures/val_compare_reg_vs_bp_v2g.png",
+      "reference_figures/val_compare_reg_vs_bp_g2v.png",
+      "reference_figures/val_compare_reg_vs_bp_g2b.png",
+      "reference_figures/val_compare_reg_vs_bp_b2g.png"
+    ]
+  }
+}

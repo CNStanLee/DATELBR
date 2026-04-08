@@ -1,0 +1,117 @@
+{
+  "input_dir": "dataset/realdata",
+  "out_dir": "dataset",
+  "f0_hz": 50.0,
+  "samples_per_cycle": 64,
+  "fft_cycles": 10,
+  "harmonics": [
+    1,
+    3,
+    5,
+    7
+  ],
+  "g2v_current_filter": "6A",
+  "g2b_power_filter": "0.5kw",
+  "b2g_power_filter": "0.5kw",
+  "calibration": {
+    "k": 0.999231279191774,
+    "b": -0.24598757316976586,
+    "r2": 0.9990748624223853,
+    "points": 2020000,
+    "files": 101
+  },
+  "scenarios": {
+    "v2g": {
+      "scenario": "v2g",
+      "npz_path": "dataset/real_v2g.npz",
+      "num_input_files": 64,
+      "num_kept_files": 64,
+      "num_dropped_files": 0,
+      "dropped_reason_count": {},
+      "num_samples": 640,
+      "samples_per_kept_file": 10,
+      "num_groups": 64,
+      "group_channel_source_count": {
+        "B": 64,
+        "C_converted": 0
+      },
+      "calibration": {
+        "k": 0.999231279191774,
+        "b": -0.24598757316976586,
+        "r2": 0.9990748624223853,
+        "points": 2020000,
+        "files": 101
+      },
+      "dropped_files": []
+    },
+    "g2v": {
+      "scenario": "g2v",
+      "npz_path": "dataset/real_g2v.npz",
+      "num_input_files": 37,
+      "num_kept_files": 37,
+      "num_dropped_files": 0,
+      "dropped_reason_count": {},
+      "num_samples": 370,
+      "samples_per_kept_file": 10,
+      "num_groups": 37,
+      "group_channel_source_count": {
+        "B": 37,
+        "C_converted": 0
+      },
+      "calibration": {
+        "k": 0.999231279191774,
+        "b": -0.24598757316976586,
+        "r2": 0.9990748624223853,
+        "points": 2020000,
+        "files": 101
+      },
+      "dropped_files": []
+    },
+    "g2b": {
+      "scenario": "g2b",
+      "npz_path": "dataset/real_g2b.npz",
+      "num_input_files": 37,
+      "num_kept_files": 37,
+      "num_dropped_files": 0,
+      "dropped_reason_count": {},
+      "num_samples": 370,
+      "samples_per_kept_file": 10,
+      "num_groups": 37,
+      "group_channel_source_count": {
+        "B": 37,
+        "C_converted": 0
+      },
+      "calibration": {
+        "k": 0.999231279191774,
+        "b": -0.24598757316976586,
+        "r2": 0.9990748624223853,
+        "points": 2020000,
+        "files": 101
+      },
+      "dropped_files": []
+    },
+    "b2g": {
+      "scenario": "b2g",
+      "npz_path": "dataset/real_b2g.npz",
+      "num_input_files": 64,
+      "num_kept_files": 64,
+      "num_dropped_files": 0,
+      "dropped_reason_count": {},
+      "num_samples": 640,
+      "samples_per_kept_file": 10,
+      "num_groups": 64,
+      "group_channel_source_count": {
+        "B": 64,
+        "C_converted": 0
+      },
+      "calibration": {
+        "k": 0.999231279191774,
+        "b": -0.24598757316976586,
+        "r2": 0.9990748624223853,
+        "points": 2020000,
+        "files": 101
+      },
+      "dropped_files": []
+    }
+  }
+}
