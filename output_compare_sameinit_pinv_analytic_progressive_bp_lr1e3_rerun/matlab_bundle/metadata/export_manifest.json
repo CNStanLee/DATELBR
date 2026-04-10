@@ -11,11 +11,15 @@
       "data/val_curve_v2g.csv",
       "data/val_curve_g2v.csv",
       "data/val_curve_g2b.csv",
-      "data/val_curve_b2g.csv"
+      "data/val_curve_b2g.csv",
+      "data/harmonic_mae_4methods_stats.csv",
+      "data/harmonic_mae_4methods_per_scenario.csv"
     ],
     "matlab": [
       "matlab/run_all_plots.m",
       "matlab/plot_harmonic_amp_5scenarios_log.m",
+      "matlab/plot_harmonic_mae_4methods_log.m",
+      "matlab/plot_harmonic_amp_5scenarios_with_4method_errorbars_linear.m",
       "matlab/plot_val_compare_reg_vs_bp_all.m"
     ],
     "reference_figures": [
@@ -23,7 +27,9 @@
       "reference_figures/val_compare_reg_vs_bp_v2g.png",
       "reference_figures/val_compare_reg_vs_bp_g2v.png",
       "reference_figures/val_compare_reg_vs_bp_g2b.png",
-      "reference_figures/val_compare_reg_vs_bp_b2g.png"
+      "reference_figures/val_compare_reg_vs_bp_b2g.png",
+      "reference_figures/harmonic_mae_4methods_log.png",
+      "reference_figures/harmonic_amp_5scenarios_with_4method_errorbars_log.png"
     ]
   }
 }
